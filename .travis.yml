@@ -9,13 +9,13 @@ services:
   - docker
 
 env:
-  - TEST_CASE=./monolithic/ui
-  - TEST_CASE=./monolithic/service/user
-  - TEST_CASE=./monolithic/service/cart
-  - TEST_CASE=./monolithic/repository/user
-  - TEST_CASE=./monolithic/repository/product
-  - TEST_CASE=./monolithic/repository/order
-  - TEST_CASE=./monolithic/repository/cart
+  - COVERAGE=0.5 TEST_CASE=./monolithic/ui
+  - COVERAGE=0.5 TEST_CASE=./monolithic/service/user
+  - COVERAGE=0.5 TEST_CASE=./monolithic/service/cart
+  - COVERAGE=0.3 TEST_CASE=./monolithic/repository/user
+  - COVERAGE=0.5 TEST_CASE=./monolithic/repository/product
+  - COVERAGE=0.3 TEST_CASE=./monolithic/repository/order
+  - COVERAGE=0.5 TEST_CASE=./monolithic/repository/cart
 
 before_install:
   - ./gradlew clean
