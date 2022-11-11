@@ -8,8 +8,9 @@ sudo: required
 services:
   - docker
 
-before-install:
+before_install:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - ./gradlew clean
   - ./gradlew -p ./monolithic/ui packageToContainer
 
 script:
