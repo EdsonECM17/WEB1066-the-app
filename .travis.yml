@@ -1,10 +1,40 @@
-language: python
-install: "pip install -r requirements.txt"
+language: java
+
+os: linux
+dist: trusty
+jdk: oraclejdk8
+
+sudo: required
+services:
+  - docker
+
+env:
+  - COVERAGE=0.5 TEST_CASE=./monolithic/ui
+  - COVERAGE=0.5 TEST_CASE=./monolithic/service/user
+  - COVERAGE=0.5 TEST_CASE=./monolithic/service/cart
+  - COVERAGE=0.3 TEST_CASE=./monolithic/repository/user
+  - COVERAGE=0.5 TEST_CASE=./monolithic/repository/product
+  - COVERAGE=0.3 TEST_CASE=./monolithic/repository/order
+  - COVERAGE=0.5 TEST_CASE=./monolithic/repository/cart
+
+before_install:
+  - ./gradlew clean
 
 script:
-  # Run ANSIBLE checks
-  # - ANSIBLE0008: Disabled for use of sudo warnings - to address
-  # - ANSIBLE0011: Disabled for all tasks which should be named
-  # - ANSIBLE0012: Disabled (should not change if nothings needs doing) - to address
-  # - ANSIBLE0013: Disabled - few uses of shell commands - to address
-  - find vagrant/provision -name "*.yml" -exec ansible-lint -x ANSIBLE008,ANSIBLE0011,ANSIBLE0012,ANSIBLE0013  {} +
+  - ./gradlew -p $TEST_CASE check
+
+
+jobs:
+  include:
+    - stage: deploy-docker
+      name: "Deploy monolith-shop to DockerHub"
+      before_install:
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - ./gradlew -p $BUILD_CASE packageToContainer
+      install: skip
+      script:
+      - docker pull zutherb/monolithic-shop
+      - docker tag zutherb/monolithic-shop:latest $DOCKER_USERNAME/monolithic-shop:latest
+      - docker push $DOCKER_USERNAME/monolithic-shop:latest
+      env:
+      - BUILD_CASE=./monolithic/ui
