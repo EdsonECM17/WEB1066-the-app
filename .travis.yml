@@ -8,26 +8,24 @@ sudo: required
 services:
   - docker
 
-stages:
-  - test
-  - deploy-docker
+env:
+  - TEST_CASE=./monolithic/ui
+  - TEST_CASE=./monolithic/service/user
+  - TEST_CASE=./monolithic/service/cart
+  - TEST_CASE=./monolithic/repository/user
+  - TEST_CASE=./monolithic/repository/product
+  - TEST_CASE=./monolithic/repository/order
+  - TEST_CASE=./monolithic/repository/cart
+
+before_install:
+  - ./gradlew clean
+
+script:
+  - ./gradlew -p $TEST_CASE check
+
 
 jobs:
   include:
-    - stage: test
-      install: skip
-      before_install:
-      - ./gradlew clean
-      script:
-      - ./gradlew -p $TEST_CASE check
-      env:
-      - TEST_CASE=./monolithic/ui
-      - TEST_CASE=./monolithic/service/user
-      - TEST_CASE=./monolithic/service/cart
-      - TEST_CASE=./monolithic/repository/user
-      - TEST_CASE=./monolithic/repository/product
-      - TEST_CASE=./monolithic/repository/order
-      - TEST_CASE=./monolithic/repository/cart
     - stage: deploy-docker
       name: "Deploy monolith-shop to DockerHub"
       before_install:
