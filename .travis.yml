@@ -16,16 +16,27 @@ jobs:
   include:
     - stage: test
       install: skip
+      before_install:
+      - ./gradlew clean
       script:
-      - echo "TODO Add Tests"
+      - ./gradlew -p $TEST_CASE check
+      env:
+      - TEST_CASE=./monolithic/ui
+      - TEST_CASE=./monolithic/service/user
+      - TEST_CASE=./monolithic/service/cart
+      - TEST_CASE=./monolithic/repository/user
+      - TEST_CASE=./monolithic/repository/product
+      - TEST_CASE=./monolithic/repository/order
+      - TEST_CASE=./monolithic/repository/cart
     - stage: deploy-docker
       name: "Deploy monolith-shop to DockerHub"
       before_install:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-      - ./gradlew clean
-      - ./gradlew -p ./monolithic/ui packageToContainer
+      - ./gradlew -p $BUILD_CASE packageToContainer
       install: skip
       script:
       - docker pull zutherb/monolithic-shop
       - docker tag zutherb/monolithic-shop:latest $DOCKER_USERNAME/monolithic-shop:latest
       - docker push $DOCKER_USERNAME/monolithic-shop:latest
+      env:
+      - BUILD_CASE=./monolithic/ui
