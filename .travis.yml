@@ -8,12 +8,24 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - ./gradlew clean
-  - ./gradlew -p ./monolithic/ui packageToContainer
+stages:
+  - test
+  - deploy-docker
 
-script:
-  - docker pull zutherb/monolithic-shop
-  - docker tag zutherb/monolithic-shop:latest $DOCKER_USERNAME/monolithic-shop:latest
-  - docker push $DOCKER_USERNAME/monolithic-shop:latest
+jobs:
+  include:
+    - stage: test
+      install: skip
+      script:
+      - echo "TODO Add Tests"
+    - stage: deploy-docker
+      name: "Deploy monolith-shop to DockerHub"
+      before_install:
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - ./gradlew clean
+      - ./gradlew -p ./monolithic/ui packageToContainer
+      install: skip
+      script:
+      - docker pull zutherb/monolithic-shop
+      - docker tag zutherb/monolithic-shop:latest $DOCKER_USERNAME/monolithic-shop:latest
+      - docker push $DOCKER_USERNAME/monolithic-shop:latest
